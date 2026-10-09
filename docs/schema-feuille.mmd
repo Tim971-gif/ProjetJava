@@ -1,0 +1,103 @@
+---
+config:
+  look: handDrawn
+  theme: neutral
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+    direction TB
+
+    class App {
+        +main()
+    }
+    class JeuFactory {
+        +creerJeu(variante)
+    }
+    class Jeu {
+        <<abstract>>
+        plateau
+        joueurs
+        pioche
+        +jouerPartie()
+        +jouerTour()
+    }
+    class JeuBase
+    class JeuTactique
+    class JeuExpert
+
+    class Plateau {
+        bornes : 9
+        +gagnant()
+    }
+    class Borne {
+        numero
+        cartes J1 / J2
+        proprietaire
+        +poser(carte)
+        +revendiquer()
+    }
+    class Joueur {
+        nom
+        main
+        +choisirCoup()
+    }
+    class Pioche {
+        +piocher()
+    }
+    class Combinaison {
+        type
+        somme
+    }
+
+    class Carte {
+        <<abstract>>
+    }
+    class CarteClan {
+        couleur
+        valeur
+    }
+    class CarteTactique {
+        <<abstract>>
+    }
+    class TroupeElite
+    class ModeCombat
+    class Ruse
+
+    class StrategieJoueur {
+        <<interface>>
+        +choisirCoup()
+    }
+    class Humain
+    class IAAleatoire
+
+    class VueConsole {
+        +afficher()
+    }
+
+    App --> JeuFactory
+    App --> VueConsole
+    JeuFactory --> Jeu : crée
+    Jeu <|-- JeuBase
+    JeuBase <|-- JeuTactique
+    JeuBase <|-- JeuExpert
+
+    Jeu *-- Plateau
+    Jeu *-- "2" Joueur
+    Jeu *-- Pioche
+    Plateau *-- "9" Borne
+    Borne o-- Carte
+    Borne ..> Combinaison : compare
+    Joueur o-- Carte : main
+    Pioche o-- Carte
+
+    Carte <|-- CarteClan
+    Carte <|-- CarteTactique
+    CarteTactique <|-- TroupeElite
+    CarteTactique <|-- ModeCombat
+    CarteTactique <|-- Ruse
+
+    Joueur --> StrategieJoueur
+    StrategieJoueur <|.. Humain
+    StrategieJoueur <|.. IAAleatoire
+    Jeu ..> VueConsole : prévient
