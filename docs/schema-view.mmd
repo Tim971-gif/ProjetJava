@@ -1,0 +1,71 @@
+---
+config:
+  look: handDrawn
+  theme: neutral
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+    direction TB
+
+    namespace view {
+        class App {
+            +main(String[] args)$
+        }
+        class MenuConfiguration {
+            -SaisieConsole saisie
+            +choisirVariante() Variante
+            +configurerJoueur(int numero) Joueur
+            -choisirTypeJoueur() String
+        }
+        class SaisieConsole {
+            -Scanner scanner
+            +lireEntier(String question, int min, int max) int
+            +lireTexte(String question) String
+            +lireOuiNon(String question) boolean
+        }
+        class VueConsole {
+            -FormatCarte format
+            +afficherPlateau(Plateau p)
+            +afficherMain(Main m)
+            +afficherMessage(String msg)
+            +tourCommence(Joueur j)
+            +coupJoue(Joueur j, Coup c)
+            +borneRevendiquee(Borne b, Joueur j)
+            +partieTerminee(Joueur gagnant)
+        }
+        class FormatCarte {
+            +texte(Carte c) String
+            +texteBorne(Borne b) String
+        }
+        class StrategieHumaine {
+            -SaisieConsole saisie
+            -VueConsole vue
+            +choisirCoup(VueJeu jeu, Joueur j) Coup
+            +choisirRevendications(VueJeu jeu, Joueur j) List~Integer~
+        }
+    }
+
+    class ObservateurJeu {
+        <<interface>>
+        controller
+    }
+    class StrategieJoueur {
+        <<interface>>
+        model
+    }
+    class JeuFactory {
+        controller
+    }
+
+    App ..> MenuConfiguration : utilise
+    App ..> JeuFactory : crée le jeu
+    App ..> VueConsole : crée
+    MenuConfiguration --> SaisieConsole
+    MenuConfiguration ..> StrategieHumaine : crée si humain
+    StrategieHumaine --> SaisieConsole
+    StrategieHumaine --> VueConsole
+    VueConsole --> FormatCarte
+
+    VueConsole ..|> ObservateurJeu
+    StrategieHumaine ..|> StrategieJoueur
