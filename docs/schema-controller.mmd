@@ -1,0 +1,104 @@
+---
+config:
+  look: handDrawn
+  theme: neutral
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+    direction TB
+
+    namespace controller {
+        class Variante {
+            <<enumeration>>
+            BASE
+            EXPERT
+            TACTIQUE
+        }
+        class JeuFactory {
+            +creerJeu(Variante v, Joueur j1, Joueur j2)$ Jeu
+        }
+        class VueJeu {
+            <<interface>>
+            +getPlateau() Plateau
+            +getMain(Joueur j) Main
+            +nbCartesPioche() int
+        }
+        class Jeu {
+            <<abstract>>
+            #Plateau plateau
+            #Joueur[] joueurs
+            #Pioche pioche
+            #int joueurCourant
+            #ArbitreRevendication arbitre
+            #List~ObservateurJeu~ observateurs
+            +jouerPartie() Joueur
+            #jouerTour()
+            #verifierCoup(Coup c)
+            #appliquer(Coup c)
+            #revendiquer(Joueur j)
+            #piocher(Joueur j)
+            +ajouterObservateur(ObservateurJeu o)
+            #tailleMain()* int
+            #revendicationEnDebutDeTour()* boolean
+        }
+        class JeuBase {
+            #tailleMain() int
+            #revendicationEnDebutDeTour() boolean
+        }
+        class JeuExpert {
+            #revendicationEnDebutDeTour() boolean
+        }
+        class JeuTactique {
+            -Pioche piocheTactique
+            #tailleMain() int
+            +peutJouerTactique(Joueur j) boolean
+        }
+        class ArbitreRevendication {
+            -EvaluateurCombinaison evaluateur
+            +peutRevendiquer(Borne b, Cote c, List~Carte~ visibles) boolean
+            -gagneSiComplete(Borne b, Cote c) boolean
+            -adversaireNePeutPasBattre(Borne b, Cote c, List~Carte~ visibles) boolean
+        }
+        class ObservateurJeu {
+            <<interface>>
+            +tourCommence(Joueur j)
+            +coupJoue(Joueur j, Coup c)
+            +borneRevendiquee(Borne b, Joueur j)
+            +partieTerminee(Joueur gagnant)
+        }
+        class CoupInvalideException {
+            <<extends RuntimeException>>
+            +CoupInvalideException(String message)
+        }
+    }
+
+    class Plateau {
+        model
+    }
+    class Joueur {
+        model
+    }
+    class Pioche {
+        model
+    }
+    class EvaluateurCombinaison {
+        model
+    }
+
+    JeuFactory ..> Variante : lit
+    JeuFactory ..> Jeu : crée
+
+    Jeu ..|> VueJeu
+    Jeu <|-- JeuBase
+    JeuBase <|-- JeuExpert
+    JeuBase <|-- JeuTactique
+
+    Jeu *-- Plateau
+    Jeu *-- "2" Joueur
+    Jeu *-- Pioche
+    Jeu --> ArbitreRevendication
+    Jeu o-- ObservateurJeu : prévient
+    Jeu ..> CoupInvalideException : lève
+
+    ArbitreRevendication --> EvaluateurCombinaison
